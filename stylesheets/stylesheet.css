@@ -1,0 +1,118 @@
+#centralwidget,
+QGroupBox {
+  background: rgb(30, 30, 46);
+  color: rgb(205, 214, 244);
+  border: none;
+  font-family: "Hack Nerd Font Mono", "Monaco";
+}
+
+#PSFrame,
+#SwitchesFrame {
+  border-width: 2px;
+  border-radius: 8px;
+  border-color: rgb(69, 71, 90);
+  border-style: inset;
+}
+
+QComboBox {
+  background: rgb(186, 194, 222);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: "Hack Nerd Font Mono", "Monaco";
+}
+
+QComboBox QAbstractItemView {
+  background: rgb(166, 173, 200);
+  border-radius: 6px;
+  padding-top: 3px;
+  padding-left: 4px;
+}
+
+QComboBox::drop-down {
+  subcontrol-origin: padding;
+  subcontrol-position: top right;
+  width: 15px;
+  border-left-width: 1px;
+  border-left-color: darkgray;
+  border-left-style: solid;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-right: 3px solid rgb(186, 194, 222);
+  border-left: 3px solid rgb(186, 194, 222);
+  border-top: 5px solid rgb(69, 71, 90);
+  border-bottom: 0;
+}
+
+QDoubleSpinBox {
+  background: rgb(180, 190, 254);
+  border-radius: 3px;
+  font-family: "Hack Nerd Font Mono", "Monaco";
+}
+
+QDoubleSpinBox::up-button,
+QDoubleSpinBox::down-button {
+  border: none;
+  border-left-width: 1px;
+  border-left-color: darkgray;
+  border-left-style: solid;
+}
+
+QDoubleSpinBox::up-arrow,
+QDoubleSpinBox::down-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-right: 3px solid rgb(186, 194, 222);
+  border-left: 3px solid rgb(186, 194, 222);
+  border-bottom: 5px solid rgb(69, 71, 90);
+  border-top: 0;
+}
+
+QDoubleSpinBox::down-arrow {
+  border-top: 5px solid rgb(69, 71, 90);
+  border-bottom: 0;
+}
+
+QPushButton {
+  background: rgb(243, 139, 168);
+  border-width: 2px;
+  border-radius: 10px;
+  border-color: rgb(69, 71, 90);
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  transition-duration: 0.4s;
+  font-family: "Hack Nerd Font Mono", "Monaco";
+}
+
+QPushButton:hover {
+  background-color: rgb(235, 160, 172);
+  border-style: outset;
+}
+
+QPushButton::pressed {
+  border-style: inset;
+}
+
+#Close {
+  background: transparent;
+}
+
+#Minimise {
+  background: transparent;
+}
+
+#DarkMode {
+  background: rgb(239, 241, 245);
+}
+
+#PSButton {
+  border-radius: 64%;
+}
