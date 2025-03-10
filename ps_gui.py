@@ -39,8 +39,7 @@ class UI(QMainWindow):
 
         super().__init__()
         self.ui = uic.loadUi("Layout.ui", self)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self._set_icon()
+        self._set_window_property()
         '''Load css'''
         with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s1, \
             open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s2:
@@ -103,8 +102,10 @@ class UI(QMainWindow):
         self.ui.Message.clear()
 
 
-    def _set_icon(self):
+    def _set_window_property(self):
         '''Set application Icon'''
+        # we make sure the window is opened at the topmost
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         app_icon = QIcon()
         cur_path = os.getcwd()
         app_icon.addFile(os.path.join(cur_path, "icons/electric.png"), QSize(24,24))
@@ -113,6 +114,9 @@ class UI(QMainWindow):
         # To show icon in taskbar
         MYAPPID = u'Harish.PSGui.1.0' # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(MYAPPID)
+
+        # we remoe the WindowStayOnTop flag
+        self.setWindowFlags(Qt.FramelessWindowHint)
 
 
     def _set_com_ports(self):
