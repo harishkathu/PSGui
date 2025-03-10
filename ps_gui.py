@@ -17,7 +17,7 @@ from PyQt5 import uic
 from customcombobox import customComboBox 
 
 
-PS_REGEX = r'^PS2000'
+PS_REGEX = r'^PS 2000'
 RELAY_REGEX = r'^(?!PS2000)'
 
 RELAY_BAUD_RATE = 9400
@@ -31,12 +31,17 @@ class UI(QMainWindow):
         ui = uic.loadUi("Layout.ui", self)
         self.setWindowFlags(Qt.FramelessWindowHint)
         self._set_icon()
+        '''Load css'''
+        with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s1, \
+            open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s2:
+            self.setStyleSheet(s1.read()+s2.read())
 
         # Find Items from uic file
         # Title buttons
         self.b_close = ui.Close
         self.b_minimise = ui.Minimise
         self.b_theme = ui.Theme
+        ui.TitleFrame.mouseMoveEvent = self.custMouseMoveEvent
 
         # PoserSupply Items
         self.b_ps = ui.PSButton
@@ -73,7 +78,7 @@ class UI(QMainWindow):
         '''                                 
         self.clickPosition = a0.globalPos()
 
-    def mouseMoveEvent(self, a0):
+    def custMouseMoveEvent(self, a0):
         '''
         [Override]
         This function allows the window to be moved when the left mouse button is pressed and dragged.
@@ -88,8 +93,12 @@ class UI(QMainWindow):
 
     def _reloadcss(self):
         '''Reload css'''
+        s2 = ''
+        if self.b_theme.isChecked():
+            with open(os.path.join(os.getcwd(), "stylesheets/light.css"), 'r') as f:
+                s2 = f.read()
         with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as f:
-            self.setStyleSheet(f.read())
+            self.setStyleSheet(f.read() + s2)
             print("Reload CSS")
         
     def _set_icon(self):
@@ -105,23 +114,42 @@ class UI(QMainWindow):
 
     def _set_com_ports(self):
         '''Set the COM ports drop downs'''
+        # Set PS COM dro-down
         com_list = serial.tools.list_ports.grep(PS_REGEX)
-        com_list = [f"{port} {desc}" for port, desc, _ in sorted(com_list)]
+        com_list = [desc for _, desc, _ in sorted(com_list)]
+        self.dd_pscom.setToolTip("Select PS2000 COM port")
         self.dd_pscom.addItems(com_list)
+        for i, com in enumerate(com_list):
+            self.dd_rcom.setItemData(i, com, Qt.ToolTipRole)
 
+        # Set Relay COM drop-down
         com_list = serial.tools.list_ports.grep(RELAY_REGEX)
-        com_list = [f"{port} {desc}" for port, desc, _ in sorted(com_list)]
+        com_list = [desc for _, desc, _ in sorted(com_list)]
+        self.dd_pscom.setToolTip("Select Relay COM port")
         self.dd_rcom.addItems(com_list)
+        for i, com in enumerate(com_list):
+            self.dd_rcom.setItemData(i, com, Qt.ToolTipRole)
 
     def _attach_signals(self):
         '''Configure all buttons''' 
         self.b_ps.clicked.connect(self.ps_toggled)
         self.b_battery.clicked.connect(self.battery_toggled)
         self.b_ig.clicked.connect(self.ig_toggled)
-        self.dd_battery.currentIndexChanged.connect(self.dd_battery.dd_changed)
-        self.dd_ig.currentIndexChanged.connect(self.dd_ig.dd_changed)
         self.b_close.clicked.connect(self.close)
         self.b_minimise.clicked.connect(self.showMinimized)
+        self.b_theme.clicked.connect(self.theme_clicked)
+        self.dd_battery.currentIndexChanged.connect(self.dd_battery.dd_changed)
+        self.dd_ig.currentIndexChanged.connect(self.dd_ig.dd_changed)
+        self.dd_pscom.currentIndexChanged.connect(self.dd_pscom_changed)
+        self.dd_rcom.currentIndexChanged.connect(self.dd_rcom_changed)
+
+    def dd_pscom_changed(self):
+        '''Set tool tip for DropDown once value selected'''
+        self.dd_pscom.setToolTip(self.dd_pscom.currentText())
+    
+    def dd_rcom_changed(self):
+        '''Set tool tip for DropDown once value selected'''
+        self.dd_rcom.setToolTip(self.dd_rcom.currentText())
 
     def ps_toggled(self):
         '''PSButton click event'''
@@ -141,6 +169,12 @@ class UI(QMainWindow):
 
     def theme_clicked(self):
         '''Theme click event'''
+        s2 = ''
+        if self.b_theme.isChecked():
+            with open(os.path.join(os.getcwd(), "stylesheets/light.css"), 'r') as f:
+                s2 = f.read()
+        with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s1:
+            self.setStyleSheet(s1.read() + s2)
 
 
 if __name__ == "__main__":

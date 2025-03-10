@@ -1,7 +1,7 @@
 #centralwidget,
 QGroupBox {
-  background: rgb(30, 30, 46);
-  color: rgb(205, 214, 244);
+  background: rgb(30, 30, 46); /* [Mocha] Base */
+  color: rgb(205, 214, 244); /* [Mocha] Text */
   border: none;
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
@@ -10,19 +10,19 @@ QGroupBox {
 #RelayFrame {
   border-width: 2px;
   border-radius: 8px;
-  border-color: rgb(69, 71, 90);
+  border-color: rgb(69, 71, 90); /* [Mocha] Surface 1 */
   border-style: inset;
 }
 
 QComboBox {
-  background: rgb(186, 194, 222);
+  background: rgb(186, 194, 222); /* [Mocha] Subtext 1 */
   border: none;
   border-radius: 3px;
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
 
 QComboBox QAbstractItemView {
-  background: rgb(166, 173, 200);
+  background: rgb(166, 173, 200); /* [Mocha] Subtext 0 */
   border-radius: 6px;
   padding-top: 3px;
   padding-left: 4px;
@@ -43,14 +43,14 @@ QComboBox::down-arrow {
   width: 0;
   height: 0;
   border-style: solid;
-  border-right: 3px solid rgb(186, 194, 222);
-  border-left: 3px solid rgb(186, 194, 222);
-  border-top: 5px solid rgb(69, 71, 90);
+  border-right: 3px solid rgb(186, 194, 222); /* [Mocha] Subtext 1 */
+  border-left: 3px solid rgb(186, 194, 222); /* [Mocha] Subtext 1 */
+  border-top: 5px solid rgb(69, 71, 90); /* [Mocha] Surface 1 */
   border-bottom: 0;
 }
 
 QDoubleSpinBox {
-  background: rgb(180, 190, 254);
+  background: rgb(180, 190, 254); /* [Mocha] Lavender */
   border-radius: 3px;
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
@@ -68,29 +68,29 @@ QDoubleSpinBox::down-arrow {
   width: 0;
   height: 0;
   border-style: solid;
-  border-right: 3px solid rgb(186, 194, 222);
-  border-left: 3px solid rgb(186, 194, 222);
-  border-bottom: 5px solid rgb(69, 71, 90);
+  border-right: 3px solid rgb(180, 190, 254); /* [Mocha] Lavender */
+  border-left: 3px solid rgb(180, 190, 254); /* [Mocha] Lavender */ 
+  border-bottom: 5px solid rgb(69, 71, 90); /* [Mocha] Surface 1 */
   border-top: 0;
 }
 
 QDoubleSpinBox::down-arrow {
-  border-top: 5px solid rgb(69, 71, 90);
+  border-top: 5px solid rgb(69, 71, 90); /* [Mocha] Surface 1 */
   border-bottom: 0;
 }
 
 QPushButton {
-  background: rgb(243, 139, 168);
+  background: rgb(243, 139, 168); /* [Mocha] Red */
   border-width: 2px;
   border-radius: 10px;
-  border-color: rgb(69, 71, 90);
+  border-color: rgb(69, 71, 90); /* [Mocha] Surface 1 */
   text-align: center;
   text-decoration: none;
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
 
 QPushButton:hover {
-  background-color: rgb(235, 160, 172);
+  background-color: rgb(235, 160, 172); /* [Mocha] Maroon */
   border-style: outset;
 }
 
@@ -99,11 +99,11 @@ QPushButton::pressed {
 }
 
 QPushButton::checked {
-  background-color: rgb(166, 227, 161); /* Green */
+  background-color: rgb(166, 227, 161); /* [Mocha] Green */
 }
 
 QPushButton::checked:hover {
-  background-color: rgb(166, 209, 137); /* Teal */
+  background-color: rgb(166, 209, 137); /* [Frappe] Green */
 }
 
 #PSButton::checked {
@@ -129,7 +129,7 @@ QPushButton::checked:hover {
 }
 
 #Theme {
-  background: rgb(239, 241, 245);
+  background: rgb(239, 241, 245); /* [Latte] Base */
 }
 
 #PSButton {

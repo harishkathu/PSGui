@@ -1,0 +1,71 @@
+#centralwidget,
+QGroupBox {
+  background: rgb(239, 241, 245); /* [Latte] Base */
+  color: rgb(48, 52, 70); /* [Frappe] Base */
+}
+
+#PSFrame,
+#RelayFrame {
+  border-color: rgb(124, 127, 147); /* [Latte] Overlay 1 */
+}
+
+QComboBox {
+  background: rgb(188, 192, 204); /* [Latte] Surface 1 */
+}
+
+QComboBox QAbstractItemView {
+  background: rgb(108, 111, 133); /* [Latte] Subtext 0 */
+}
+
+QComboBox::down-arrow {
+  border-right: 3px solid rgb(188, 192, 204); /* [Latte] Subtext 1 */
+  border-left: 3px solid rgb(188, 192, 204); /* [Latte] Subtext 1 */
+  border-top: 5px solid rgb(92, 95, 119); /* [Latte] Subtext 1 */
+  border-bottom: 0;
+}
+
+QDoubleSpinBox {
+  background: rgb(133, 193, 220); /* [Frappe] Saphire */
+}
+
+QDoubleSpinBox::up-arrow,
+QDoubleSpinBox::down-arrow {
+  border-right: 3px solid rgb(133, 193, 220); /* [Frappe] Saphire */
+  border-left: 3px solid rgb(133, 193, 220); /* [Frappe] Saphire */ 
+  border-bottom: 5px solid rgb(92, 95, 119); /* [Latte] Subtext 1 */
+  border-top: 0;
+}
+
+QDoubleSpinBox::down-arrow {
+  border-top: 5px solid rgb(92, 95, 119); /* [Latte] Subtext 1 */
+  border-bottom: 0;
+}
+
+QPushButton {
+  background: rgb(230, 69, 83); /* [Latte] Maroon */
+  border-color: rgb(124, 127, 147); /* [Latte] Overlay 1 */
+}
+
+QPushButton:hover {
+  background-color: rgb(210, 15, 57); /* [Latte] Red */
+}
+
+QPushButton::checked {
+  background-color: rgb(166, 209, 137); /* [Frappe] Green */
+}
+
+QPushButton::checked:hover {
+  background-color: rgb(64, 160, 43); /* [Latte] Green */
+}
+
+#Close {
+  background: transparent;
+}
+
+#Minimise {
+  background: transparent;
+}
+
+#Theme {
+  background: rgb(30, 30, 46); /* [Mocha] Base */
+}
