@@ -6,6 +6,10 @@ QGroupBox {
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
 
+QLabel {
+    color: rgb(250, 179, 135) /* [Mocha] Peach */
+}
+
 #PSFrame,
 #RelayFrame {
   border-width: 2px;

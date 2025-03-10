@@ -4,6 +4,10 @@ QGroupBox {
   color: rgb(48, 52, 70); /* [Frappe] Base */
 }
 
+QLabel {
+    color: rgb(254, 100, 11) /* [Latte] Peach */
+}
+
 #PSFrame,
 #RelayFrame {
   border-color: rgb(124, 127, 147); /* [Latte] Overlay 1 */

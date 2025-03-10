@@ -37,6 +37,9 @@
     <height>1</height>
    </size>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -665,7 +668,7 @@ border-radius: 64%;
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLabel" name="author">
+    <widget class="QLabel" name="Author">
      <property name="geometry">
       <rect>
        <x>20</x>
@@ -690,7 +693,7 @@ border-radius: 64%;
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="title">
+    <widget class="QLabel" name="Title">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -724,7 +727,7 @@ border-radius: 64%;
       <enum>Qt::AutoText</enum>
      </property>
     </widget>
-    <widget class="QLabel" name="logo">
+    <widget class="QLabel" name="Logo">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -744,19 +747,6 @@ border-radius: 64%;
      </property>
      <property name="scaledContents">
       <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="ReloadCss">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>10</y>
-       <width>75</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>ReloadCss</string>
      </property>
     </widget>
     <widget class="QPushButton" name="Close">
@@ -833,6 +823,25 @@ border-radius: 64%;
        <width>23</width>
        <height>23</height>
       </size>
+     </property>
+    </widget>
+    <widget class="QLabel" name="Message">
+     <property name="geometry">
+      <rect>
+       <x>136</x>
+       <y>-1</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::MarkdownText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>

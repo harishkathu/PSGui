@@ -24,6 +24,6 @@ class customComboBox(QComboBox):
         self.addItems(
             [x for x in customComboBox.relays if x not in customComboBox.selected]
         )
-        super().setToolTip("Relay No")
         super().setCurrentText(self.prevText if self.prevText else '')
+        super().setToolTip(self.prevText if self.prevText else "Relay No")
         super().showPopup()
