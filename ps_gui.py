@@ -16,15 +16,11 @@ from PyQt5.QtCore import QSize, Qt, QTimer
 from PyQt5 import uic
 
 from customcombobox import customComboBox 
-
-
-PS_REGEX = r'^PS 2000'
-RELAY_REGEX = r'^(?!PS2000)'
+from ps2000 import PS2000
 
 RELAY_BAUD_RATE = 9600
-
-PS_COM_LIST = serial.tools.list_ports.grep(PS_REGEX)
-RELAY_COM_LIST = serial.tools.list_ports.grep(RELAY_REGEX)
+PS_COM_LIST = sorted(tuple(serial.tools.list_ports.comports()))
+RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.comports()))
 
 class UI(QMainWindow):
     '''
@@ -98,6 +94,12 @@ class UI(QMainWindow):
             a0.accept()
 
 
+    @staticmethod
+    def _gen_payload(cmd:str):
+        cmd = cmd + '\n\r'
+        return cmd.encode()
+
+
     def _timer_to(self):
         self.ui.Message.clear()
 
@@ -122,16 +124,16 @@ class UI(QMainWindow):
     def _set_com_ports(self):
         '''Set the COM ports drop downs'''
         # Set PS COM dro-down
-        com_list = [desc for _, desc, _ in sorted(PS_COM_LIST)]
-        self.dd_pscom.com_list = sorted(com_list)
+        com_list = [desc for _, desc, _ in PS_COM_LIST]
+        self.dd_pscom.com_list = com_list
         self.dd_pscom.setToolTip("Select PS 2000 COM port")
         self.dd_pscom.addItems(com_list)
         for i, com in enumerate(com_list):
             self.dd_rcom.setItemData(i, com, Qt.ToolTipRole)
 
         # Set Relay COM drop-down
-        com_list = [desc for _, desc, _ in sorted(RELAY_COM_LIST)]
-        self.dd_rcom.com_list = sorted(com_list)
+        com_list = [desc for _, desc, _ in RELAY_COM_LIST]
+        self.dd_rcom.com_list = com_list
         self.dd_rcom.setToolTip("Select Relay COM port")
         self.dd_rcom.addItems(com_list)
         for i, com in enumerate(com_list):
@@ -157,15 +159,15 @@ class UI(QMainWindow):
         '''Set tool tip for DropDown once value selected'''
         self.dd_pscom.setToolTip(self.dd_pscom.currentText())
         if self.dd_pscom.currentText():
-            device = [com for com, desc, _ in PS_COM_LIST if desc == self.currentText()]
-            self.RelayDev = serial.Serial(device[0])
+            device = [com for com, desc, _ in PS_COM_LIST if desc == self.dd_pscom.currentText()]
+            self.PSDev = PS2000(device[0])
 
 
     def dd_rcom_changed(self):
         '''Set tool tip for DropDown once value selected'''
         self.dd_rcom.setToolTip(self.dd_rcom.currentText())
         if self.dd_rcom.currentText():
-            device = [com for com, desc, _ in RELAY_COM_LIST if desc == self.currentText()]
+            device = [com for com, desc, _ in RELAY_COM_LIST if desc == self.dd_rcom.currentText()]
             self.RelayDev = serial.Serial(device[0])
 
 
@@ -177,7 +179,9 @@ class UI(QMainWindow):
             self.timer.start()
             return
 
-        print(f"PS checked: {self.b_ps.isChecked()}")
+        self.PSDev.set_remote(True)
+        self.PSDev.set_output_on(on = bool(self.b_ps.isChecked()))
+        self.PSDev.set_remote(False)
 
 
     def battery_toggled(self):
@@ -190,7 +194,7 @@ class UI(QMainWindow):
 
         relay = self.dd_battery.currentText()
         cmd = f'RL{relay[-1]}{int(self.b_battery.isChecked())}' if relay else ''
-        self.RelayDev.write(cmd.encode())
+        self.RelayDev.write(self._gen_payload(cmd))
 
 
     def ig_toggled(self):
@@ -203,6 +207,7 @@ class UI(QMainWindow):
 
         relay = self.dd_ig.currentText()
         cmd = f'RL{relay[-1]}{int(self.b_ig.isChecked())}' if relay else ''
+        self.RelayDev.write(self._gen_payload(cmd))
 
 
     def theme_clicked(self):

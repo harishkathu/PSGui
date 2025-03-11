@@ -1,7 +1,7 @@
 import struct
 import serial.tools.list_ports
 
-class ps2000(object):
+class PS2000(object):
 
     # set verbose to True to see all bytes
     verbose = False
