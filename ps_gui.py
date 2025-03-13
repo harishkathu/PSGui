@@ -6,11 +6,12 @@ Author: Harish Kathalingam (uif51939)
 import ctypes
 import os
 import sys
+import traceback
 
 import serial.tools.list_ports 
 from PyQt5.QtWidgets import QMainWindow, QApplication, \
                             QPushButton, QGroupBox, QComboBox, \
-                            QDoubleSpinBox
+                            QDoubleSpinBox, QErrorMessage, QMessageBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize, Qt, QTimer
 from PyQt5 import uic
@@ -19,8 +20,10 @@ from customcombobox import customComboBox
 from ps2000 import PS2000
 
 RELAY_BAUD_RATE = 9600
-PS_COM_LIST = sorted(tuple(serial.tools.list_ports.comports()))
-RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.comports()))
+PS_REGEX = r"^PS 2000"
+RELAY_REGEX = fr"^(?!({PS_REGEX}))"
+PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
+RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
 
 class UI(QMainWindow):
     '''
@@ -220,7 +223,15 @@ class UI(QMainWindow):
             self.setStyleSheet(s1.read() + s2)
 
 
+def error_handler(etype, value, tb):
+    error_msg = ''.join(traceback.format_exception(etype, value, tb))
+    # If error occurs showpopup and then close application
+    QMessageBox.critical(Window, "Runtime Error", error_msg)
+    app.exit(1)
+
 if __name__ == "__main__":
+    sys.excepthook = error_handler # Redirect std error
+
     app = QApplication(sys.argv)
     Window = UI()
     Window.activateWindow()

@@ -1,3 +1,26 @@
+QMessageBox, QMessageBox QLabel{
+  background-color: rgb(239, 241, 245);
+  color: rgb(48, 52, 70);
+  font-family: "Hack Nerd Font Mono", "Monaco";
+}
+
+QMessageBox QPushButton{
+  font-family: "Hack Nerd Font Mono", "Monaco";
+  background: none; /* [Latte] Maroon */
+  border-radius: 10%;
+  border-color: rgb(124, 127, 147); /* [Latte] Overlay 1 */
+  border-style: outset;
+}
+
+QMessageBox QPushButton:hover {
+  background-color: none; /* [Latte] Red */
+  border-style: outset
+}
+
+QMessageBox QPushButton:pressed {
+  border-style: inset
+}
+
 #centralwidget,
 QGroupBox {
   background: rgb(30, 30, 46); /* [Mocha] Base */
