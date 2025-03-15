@@ -1,5 +1,7 @@
 # Files
 *.log
+layout.py
+resources_rc.py
 
 # Folders
 __pycache__/
