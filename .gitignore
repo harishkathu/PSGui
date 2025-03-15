@@ -2,4 +2,7 @@
 *.log
 
 # Folders
+__pycache__/
 env/
+build/
+dist/
