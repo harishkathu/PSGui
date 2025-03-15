@@ -1,10 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
+import subprocess
+import shutil
+
+# Generate layout.py and resources_rc.py
+subprocess.run(['pyuic5', '-o', 'layout.py', './Layout.ui',], shell=True)
+subprocess.run(['pyrcc5', '-o', 'resources_rc.py', './resources.qrc',], shell=True)
 
 a = Analysis(
     ['ps_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[('README.md', '.')],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -37,3 +43,6 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
+# Copy README.md to dist
+shutil.copyfile('README.md', '{0}/README.md'.format(DISTPATH))

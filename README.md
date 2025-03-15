@@ -11,13 +11,13 @@ GUI to control PS2000 Power supply and serial relay module
 Generate Layout.py
 
 ```shell
-pyuic5 -o layout.py .\Layout.ui
+pyuic5 -o layout.py ./Layout.ui
 ```
 
 Generate resource_rc.py
 
 ```shell
-pyrcc5 -o resources_rc.py .\resources.qrc
+pyrcc5 -o resources_rc.py ./resources.qrc
 ```
 
 Build to exe
