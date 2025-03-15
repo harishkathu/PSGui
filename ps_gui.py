@@ -7,68 +7,85 @@ import ctypes
 import os
 import sys
 import traceback
+from enum import Enum
 
-import serial.tools.list_ports 
-from PyQt5.QtWidgets import QMainWindow, QApplication, \
-                            QPushButton, QGroupBox, QComboBox, \
-                            QDoubleSpinBox, QErrorMessage, QMessageBox
+import serial.tools.list_ports
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QPushButton, QComboBox
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize, Qt, QTimer
-from PyQt5 import uic
+from PyQt5.QtCore import QSize, Qt, QTimer, QFile, QIODevice, QTextStream, QSettings
 
-from customcombobox import customComboBox 
+# Requires generation of layout.py and resources_rc.py
+# read README.md
+from layout import Ui_MainWindow
 from ps2000 import PS2000
 
+
+SETTING = QSettings("PSGui", "v1.0")
+PROG_DIR = os.path.dirname(os.path.realpath(__file__)) #Canonical path to program's directory
 RELAY_BAUD_RATE = 9600
 PS_REGEX = r"^PS 2000"
 RELAY_REGEX = fr"^(?!({PS_REGEX}))"
 PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
 RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
 
+
+class Settings(str, Enum):
+    '''Enums for settig paths'''
+    THEME = "theme/styeshet"
+
+    POWERSUPPLYCOM = "power_supply/com_port"
+    ONVOLTAGE = "power_supply/on_voltage"
+    OFFVOLTAGE = "power_supply/off_voltage"
+    POWERSUPPLYTOGGLE = "power_supply/toggle_delay"
+
+    REALYCOM = "relay/com_port"
+    BATTERYRELAY = "relay/battery_realy"
+    BATTERYTOGGLE = "relay/battery_toggle_delay"
+    IGRELAY = "relay/ig_relay"
+    IGTOGGLE = "relay/ig_toggle_delay"
+
+
 class UI(QMainWindow):
     '''
-    UI class to load and use Uic file
+    Class to setup MainWindow and related behaviors.
     '''
     def __init__(self):
-        self.PSDev = None
-        self.RelayDev = None
-        self.timer = QTimer()
-        self.timer.setInterval(3000)
-        self.timer.setSingleShot(True)
+        self.ps_device = None
+        self.relay_device = None
+        self.msg_timer = QTimer()
+        self.msg_timer.setInterval(3000)
+        self.msg_timer.setSingleShot(True)
+
+        self.ps_toggle_timer = QTimer()
+        self.battery_toggle_timer = QTimer()
+        self.ig_toggle_timer = QTimer()
+        self.ps_toggle_timer.setSingleShot(False)
+        self.battery_toggle_timer.setSingleShot(False)
+        self.ig_toggle_timer.setSingleShot(False)
+        self.ps_toggle_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.battery_toggle_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.ig_toggle_timer.setTimerType(Qt.TimerType.PreciseTimer)
 
         super().__init__()
-        self.ui = uic.loadUi("Layout.ui", self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self._set_window_property()
-        '''Load css'''
-        with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s1, \
-            open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s2:
-            self.setStyleSheet(s1.read()+s2.read())
 
-        # Find Items from uic file
-        # Title buttons
-        self.b_close = self.ui.Close
-        self.b_minimise = self.ui.Minimise
-        self.b_theme = self.ui.Theme
+        # Load QSS
+        if SETTING.value(Settings.THEME,""):
+            self.ui.Theme.setChecked(True)
+            self.theme_clicked()
+        else:
+            stylesheet = QFile(":/stylesheet/stylesheets/stylesheet.qss")
+            stylesheet.open(QIODevice.ReadOnly)
+            self.setStyleSheet(QTextStream(stylesheet).readAll())
+            stylesheet.close()
+
         self.ui.TitleFrame.mouseMoveEvent = self.custMouseMoveEvent
-
-        # PoserSupply Items
-        self.b_ps = self.ui.PSButton
-        self.dd_pscom = self.ui.PSCom
-        self.sb_onv = self.ui.OnVoltage
-        self.sb_offv = self.ui.OffVoltage
-
-        # Relay
-        self.dd_rcom = self.ui.RelayCom
-        # Battery
-        self.b_battery = self.ui.BatteryButton
-        self.dd_battery = self.ui.BatteryCom
-
-        # Ignition
-        self.b_ig = self.ui.IGButton
-        self.dd_ig = self.ui.IGCom
-
         self._attach_signals()
         self._set_com_ports()
+        self._set_realys()
+        self._set_voltages()
         self.show()
 
 
@@ -79,14 +96,15 @@ class UI(QMainWindow):
 
         Parameters:
             event: represents the mouse press event object.
-        '''                                 
+        '''
         self.clickPosition = a0.globalPos()
 
 
     def custMouseMoveEvent(self, a0):
         '''
         [Override]
-        This function allows the window to be moved when the left mouse button is pressed and dragged.
+        This function allows the window to be moved when
+        the left mouse button is pressed and dragged.
 
         Parameters:
             e: represents the mouse event object.
@@ -99,7 +117,7 @@ class UI(QMainWindow):
 
     @staticmethod
     def _gen_payload(cmd:str):
-        cmd = cmd + '\n\r'
+        cmd = cmd + "\n\r"
         return cmd.encode()
 
 
@@ -107,17 +125,42 @@ class UI(QMainWindow):
         self.ui.Message.clear()
 
 
+    def _ps_toggle_to(self):
+        '''Toggle Power supply once timer expires'''
+        self.ui.PSButton.blockSignals(True)
+        self.ui.PSButton.setChecked(not self.ui.PSButton.isChecked())
+        self.ui.PSButton.blockSignals(False)
+
+        self.ps_device.set_remote(True)
+        voltage = int(self.ui.OnVoltage.text() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.text())
+        # When turnign on if On/OffVoltage is 0 we let hardware decide
+        if self.ui.PSButton.isChecked() and voltage != 0:
+            self.ps_device.set_voltage(voltage)
+        self.ps_device.set_output_on(on = bool(self.ui.PSButton.isChecked()))
+        self.ps_device.set_remote(False)
+
+
+    def _relay_toggle_to(self, button: QPushButton, button_com: QComboBox):
+        '''Toggle Relay switch once timer expires'''
+        button.blockSignals(True)
+        button.setChecked(not button.isChecked())
+        button.blockSignals(False)
+
+        relay = button_com.currentText()
+        cmd = f"RL{relay[-1]}{int(button.isChecked())}" if relay else ""
+        self.relay_device.write(self._gen_payload(cmd))
+
+
     def _set_window_property(self):
         '''Set application Icon'''
         # we make sure the window is opened at the topmost
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         app_icon = QIcon()
-        cur_path = os.getcwd()
-        app_icon.addFile(os.path.join(cur_path, "icons/electric.png"), QSize(24,24))
-        app.setWindowIcon(app_icon)
+        app_icon.addFile(":/icons/icons/electric.png", QSize(24,24))
+        APP.setWindowIcon(app_icon)
 
         # To show icon in taskbar
-        MYAPPID = u'Harish.PSGui.1.0' # arbitrary string
+        MYAPPID = "Harish.PSGui.1.0" # arbitrary string
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(MYAPPID)
 
         # we remoe the WindowStayOnTop flag
@@ -128,111 +171,194 @@ class UI(QMainWindow):
         '''Set the COM ports drop downs'''
         # Set PS COM dro-down
         com_list = [desc for _, desc, _ in PS_COM_LIST]
-        self.dd_pscom.com_list = com_list
-        self.dd_pscom.setToolTip("Select PS 2000 COM port")
-        self.dd_pscom.addItems(com_list)
+        self.ui.PSCom.com_list = com_list
+        self.ui.PSCom.setToolTip("Select PS 2000 COM port")
+        self.ui.PSCom.addItems(com_list)
+
+        # Set Tooltip for items in drop-down
         for i, com in enumerate(com_list):
-            self.dd_rcom.setItemData(i, com, Qt.ToolTipRole)
+            self.ui.RelayCom.setItemData(i, com, Qt.ToolTipRole)
+
+        # Retrive from saved settings if exists
+        if SETTING.value(Settings.POWERSUPPLYCOM) in com_list:
+            self.ui.PSCom.setCurrentText(SETTING.value(Settings.POWERSUPPLYCOM))
 
         # Set Relay COM drop-down
         com_list = [desc for _, desc, _ in RELAY_COM_LIST]
-        self.dd_rcom.com_list = com_list
-        self.dd_rcom.setToolTip("Select Relay COM port")
-        self.dd_rcom.addItems(com_list)
+        self.ui.RelayCom.com_list = com_list
+        self.ui.RelayCom.setToolTip("Select Relay COM port")
+        self.ui.RelayCom.addItems(com_list)
+
+        # Set Tooltip for items in drop-down
         for i, com in enumerate(com_list):
-            self.dd_rcom.setItemData(i, com, Qt.ToolTipRole)
+            self.ui.RelayCom.setItemData(i, com, Qt.ToolTipRole)
+
+        # Retrive from saved settings if exists
+        if SETTING.value(Settings.REALYCOM) in com_list:
+            self.ui.RelayCom.setCurrentText(SETTING.value(Settings.REALYCOM))
+
+
+    def _set_realys(self):
+        '''Set Battery and IG relay'''
+        if not self.ui.RelayCom.currentText():
+            return
+        self.ui.BatteryCom.setCurrentText(SETTING.value(Settings.BATTERYRELAY, ""))
+        self.ui.IGCom.setCurrentText(SETTING.value(Settings.IGRELAY, ""))
+
+
+    def _set_voltages(self):
+        '''Set Power supply On and Off voltages'''
+        if not self.ui.PSCom.currentText():
+            return
+        self.ui.OnVoltage(SETTING.value(Settings.ONVOLTAGE).toInt(), 0)
+        self.ui.OffVoltage(SETTING.value(Settings.OFFVOLTAGE).toInt(), 0)
 
 
     def _attach_signals(self):
         '''Configure all buttons''' 
-        self.timer.timeout.connect(self._timer_to)
-        self.b_ps.clicked.connect(self.ps_toggled)
-        self.b_battery.clicked.connect(self.battery_toggled)
-        self.b_ig.clicked.connect(self.ig_toggled)
-        self.b_close.clicked.connect(self.close)
-        self.b_minimise.clicked.connect(self.showMinimized)
-        self.b_theme.clicked.connect(self.theme_clicked)
-        self.dd_battery.currentIndexChanged.connect(self.dd_battery.dd_changed)
-        self.dd_ig.currentIndexChanged.connect(self.dd_ig.dd_changed)
-        self.dd_pscom.currentIndexChanged.connect(self.dd_pscom_changed)
-        self.dd_rcom.currentIndexChanged.connect(self.dd_rcom_changed)
+        self.msg_timer.timeout.connect(self._timer_to)
+        self.ps_toggle_timer.timeout.connect(self._ps_toggle_to)
+        self.battery_toggle_timer.timeout.connect(lambda: self._relay_toggle_to(self.ui.BatteryButton, self.ui.BatteryCom))
+        self.ig_toggle_timer.timeout.connect(lambda: self._relay_toggle_to(self.ui.IGButton, self.ui.IGCom))
+        self.ui.Close.clicked.connect(self.close)
+        self.ui.Minimise.clicked.connect(self.showMinimized)
+        self.ui.Theme.clicked.connect(self.theme_clicked)
+        self.ui.RelayCom.currentIndexChanged.connect(self.dd_rcom_changed)
+        self.ui.PSCom.currentIndexChanged.connect(self.dd_pscom_changed)
+        self.ui.PSButton.clicked.connect(self.ps_toggled)
+        self.ui.BatteryCom.currentIndexChanged.connect(self.ui.BatteryCom.dd_changed)
+        self.ui.BatteryButton.clicked.connect(self.battery_toggled)
+        self.ui.IGCom.currentIndexChanged.connect(self.ui.IGCom.dd_changed)
+        self.ui.IGButton.clicked.connect(self.ig_toggled)
 
 
     def dd_pscom_changed(self):
         '''Set tool tip for DropDown once value selected'''
-        self.dd_pscom.setToolTip(self.dd_pscom.currentText())
-        if self.dd_pscom.currentText():
-            device = [com for com, desc, _ in PS_COM_LIST if desc == self.dd_pscom.currentText()]
-            self.PSDev = PS2000(device[0])
+        self.ui.PSCom.setToolTip(self.ui.PSCom.currentText())
+        if self.ui.PSCom.currentText():
+            device = [(com, desc) for com, desc, _ in PS_COM_LIST if desc == self.ui.PSCom.currentText()]
+            self.ps_device = PS2000(device[0][0]) # Com port (com)
+            SETTING.setValue(Settings.POWERSUPPLYCOM, device[0][1]) # description (desc)
 
 
     def dd_rcom_changed(self):
         '''Set tool tip for DropDown once value selected'''
-        self.dd_rcom.setToolTip(self.dd_rcom.currentText())
-        if self.dd_rcom.currentText():
-            device = [com for com, desc, _ in RELAY_COM_LIST if desc == self.dd_rcom.currentText()]
-            self.RelayDev = serial.Serial(device[0])
+        self.ui.RelayCom.setToolTip(self.ui.RelayCom.currentText())
+        if self.ui.RelayCom.currentText():
+            device = [(com, desc) for com, desc, _ in RELAY_COM_LIST if desc == self.ui.RelayCom.currentText()]
+            self.relay_device = serial.Serial(device[0][0]) # Com port (com)
+            SETTING.setValue(Settings.POWERSUPPLYCOM, device[0][1]) # description (desc)
 
 
     def ps_toggled(self):
         '''PSButton click event'''
-        if self.PSDev is None:
-            self.b_ps.toggle()
+        if self.ps_device is None:
+            self.ui.PSButton.toggle()
             self.ui.Message.setText("**[INFO] Invalid Power Supply device (COM port)**")
-            self.timer.start()
+            self.msg_timer.start()
             return
 
-        self.PSDev.set_remote(True)
-        self.PSDev.set_output_on(on = bool(self.b_ps.isChecked()))
-        self.PSDev.set_remote(False)
+        self.ps_device.set_remote(True)
+        voltage = int(self.ui.OnVoltage.text() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.text())
+        # When turnign on if On/OffVoltage is 0 we let hardware decide
+        if self.ui.PSButton.isChecked() and voltage != 0:
+            self.ps_device.set_voltage(voltage)
+        self.ps_device.set_output_on(on = self.ui.PSButton.isChecked())
+        self.ps_device.set_remote(False)
+
+        if (not self.ps_toggle_timer.isActive()) and (self.ui.PSToggleDelay != 0):
+            self.ps_toggle_timer.setInterval(self.ui.PSToggleDelay)
+            self.ps_toggle_timer.start()
+
+        if self.ps_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] Power supply auto-toggle stopped**")
+            self.ps_toggle_timer.stop()
 
 
     def battery_toggled(self):
         '''BatteryButton click event'''
-        if self.RelayDev is None:
-            self.b_battery.toggle()
+        if self.relay_device is None:
+            self.ui.BatteryButton.toggle()
             self.ui.Message.setText("**[INFO] Invalid Relay device (COM port)**")
-            self.timer.start()
+            self.msg_timer.start()
             return
 
-        relay = self.dd_battery.currentText()
-        cmd = f'RL{relay[-1]}{int(self.b_battery.isChecked())}' if relay else ''
-        self.RelayDev.write(self._gen_payload(cmd))
+        if not self.ui.BatteryCom.currentText():
+            self.ui.Message.setText("**[INFO] Invalid Relay channel**")
+            return
+
+        relay = self.ui.BatteryCom.currentText()
+        SETTING.setValue(Settings.BATTERYRELAY, self.ui.BatteryCom.currentText())
+        cmd = f"RL{relay[-1]}{int(self.ui.BatteryButton.isChecked())}" if relay else ""
+        self.relay_device.write(self._gen_payload(cmd))
+
+        if (not self.battery_toggle_timer.isActive()) and (self.ui.BatteryToggleDelay != 0):
+            self.battery_toggle_timer.setInterval(self.ui.BatteryToggleDelay)
+            self.battery_toggle_timer.start()
+
+        if self.battery_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] Battery auto-toggle stopped**")
+            self.battery_toggle_timer.stop()
 
 
     def ig_toggled(self):
         '''IGButton click event'''
-        if self.RelayDev is None:
-            self.b_ig.toggle()
+        if self.relay_device is None:
+            self.ui.IGButton.toggle()
             self.ui.Message.setText("**[INFO] Invalid Relay device (COM port)**")
-            self.timer.start()
+            self.msg_timer.start()
             return
 
-        relay = self.dd_ig.currentText()
-        cmd = f'RL{relay[-1]}{int(self.b_ig.isChecked())}' if relay else ''
-        self.RelayDev.write(self._gen_payload(cmd))
+        if not self.ui.IGCom.currentText():
+            self.ui.Message.setText("**[INFO] Invalid Relay channel**")
+            return
+
+        relay = self.ui.IGCom.currentText()
+        SETTING.setValue(Settings.IGRELAY, self.ui.IGCom.currentText())
+        cmd = f"RL{relay[-1]}{int(self.ui.IGButton.isChecked())}" if relay else ""
+        self.relay_device.write(self._gen_payload(cmd))
+
+        if (not self.ig_toggle_timer.isActive()) and (self.ui.IGToggleDelay != 0):
+            self.ig_toggle_timer.setInterval(self.ui.IGToggleDelay)
+            self.ig_toggle_timer.start()
+
+        if self.ig_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] IG auto-toggle stopped**")
+            self.ig_toggle_timer.stop()
 
 
     def theme_clicked(self):
         '''Theme click event'''
-        s2 = ''
-        if self.b_theme.isChecked():
-            with open(os.path.join(os.getcwd(), "stylesheets/light.css"), 'r') as f:
-                s2 = f.read()
-        with open(os.path.join(os.getcwd(), "stylesheets/stylesheet.css"), 'r') as s1:
-            self.setStyleSheet(s1.read() + s2)
+        theme = ""
+        if self.ui.Theme.isChecked():
+            SETTING.setValue(Settings.THEME, ":/stylesheet/stylesheets/light.qss")
+            file = QFile(":/stylesheet/stylesheets/light.qss")
+            file.open(QIODevice.ReadOnly)
+            theme = QTextStream(file).readAll()
+            file.close()
+        else:
+            SETTING.setValue(Settings.THEME, "")
+
+        stylesheet = QFile(":/stylesheet/stylesheets/stylesheet.qss")
+        stylesheet.open(QIODevice.ReadOnly)
+        self.setStyleSheet(QTextStream(stylesheet).readAll() + theme)
+        stylesheet.close()
 
 
 def error_handler(etype, value, tb):
+    '''
+    Custom Error handler:
+        Make sure we show a popup on exception
+        and gracefully exit the application
+    '''
     error_msg = ''.join(traceback.format_exception(etype, value, tb))
     # If error occurs showpopup and then close application
-    QMessageBox.critical(Window, "Runtime Error", error_msg)
-    app.exit(1)
+    QMessageBox.critical(WINDOW, "Runtime Error", error_msg)
+    APP.exit(1)
 
 if __name__ == "__main__":
     sys.excepthook = error_handler # Redirect std error
-
-    app = QApplication(sys.argv)
-    Window = UI()
-    Window.activateWindow()
-    app.exec_()
+    APP = QApplication(sys.argv)
+    WINDOW = UI()
+    WINDOW.activateWindow()
+    APP.exec_()
