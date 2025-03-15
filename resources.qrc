@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/close.svg</file>
+    <file>icons/conti_logo.png</file>
+    <file>icons/dark_mode.png</file>
+    <file>icons/Dev.png</file>
+    <file>icons/electric.png</file>
+    <file>icons/light_mode.png</file>
+    <file>icons/minimise.png</file>
+    <file>icons/offswitch.png</file>
+    <file>icons/onswitch.png</file>
+    <file>icons/power_button.png</file>
+  </qresource>
+  <qresource prefix="stylesheet">
+    <file>stylesheets/stylesheet.qss</file>
+    <file>stylesheets/light.qss</file>
+  </qresource>
+</RCC>

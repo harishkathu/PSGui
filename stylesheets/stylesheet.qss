@@ -76,22 +76,22 @@ QComboBox::down-arrow {
   border-bottom: 0;
 }
 
-QDoubleSpinBox {
+QDoubleSpinBox, QSpinBox {
   background: rgb(180, 190, 254); /* [Mocha] Lavender */
   border-radius: 3px;
   font-family: "Hack Nerd Font Mono", "Monaco";
 }
 
-QDoubleSpinBox::up-button,
-QDoubleSpinBox::down-button {
+QDoubleSpinBox::up-button, QSpinBox::up-button,
+QDoubleSpinBox::down-button, QSpinBox::down-button {
   border: none;
   border-left-width: 1px;
   border-left-color: darkgray;
   border-left-style: solid;
 }
 
-QDoubleSpinBox::up-arrow,
-QDoubleSpinBox::down-arrow {
+QDoubleSpinBox::up-arrow, QSpinBox::up-arrow,
+QDoubleSpinBox::down-arrow, QSpinBox::down-arrow {
   width: 0;
   height: 0;
   border-style: solid;
@@ -101,7 +101,7 @@ QDoubleSpinBox::down-arrow {
   border-top: 0;
 }
 
-QDoubleSpinBox::down-arrow {
+QDoubleSpinBox::down-arrow, QSpinBox::down-arrow {
   border-top: 5px solid rgb(69, 71, 90); /* [Mocha] Surface 1 */
   border-bottom: 0;
 }
@@ -160,5 +160,5 @@ QPushButton::checked:hover {
 }
 
 #PSButton {
-  border-radius: 64%;
+  border-radius: 50%;
 }

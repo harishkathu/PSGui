@@ -28,19 +28,19 @@ QComboBox::down-arrow {
   border-bottom: 0;
 }
 
-QDoubleSpinBox {
+QDoubleSpinBox, QSpinBox {
   background: rgb(133, 193, 220); /* [Frappe] Saphire */
 }
 
-QDoubleSpinBox::up-arrow,
-QDoubleSpinBox::down-arrow {
+QDoubleSpinBox::up-arrow, QSpinBox::up-arrow
+QDoubleSpinBox::down-arrow, QSpinBox::down-arrow {
   border-right: 3px solid rgb(133, 193, 220); /* [Frappe] Saphire */
   border-left: 3px solid rgb(133, 193, 220); /* [Frappe] Saphire */ 
   border-bottom: 5px solid rgb(92, 95, 119); /* [Latte] Subtext 1 */
   border-top: 0;
 }
 
-QDoubleSpinBox::down-arrow {
+QDoubleSpinBox::down-arrow, QSpinBox::down-arrow {
   border-top: 5px solid rgb(92, 95, 119); /* [Latte] Subtext 1 */
   border-bottom: 0;
 }

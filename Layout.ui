@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>601</width>
     <height>220</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
+    <width>580</width>
     <height>220</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
+    <width>800</width>
     <height>220</height>
    </size>
   </property>
@@ -44,138 +44,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#centralwidget, QGroupBox{
-background: rgb(30, 30, 46);
-color: rgb(205, 214, 244);
-border: none;
-font-family: &quot;Hack Nerd Font Mono&quot;, &quot;Monaco&quot;;
-}
-
-#PSFrame, #RelayFrame {
-border-width: 2px;
-border-radius: 8px;
-border-color: rgb(69, 71, 90);
-border-style: inset;
-}
-
-QComboBox {
-background: rgb(186, 194, 222);
-border: none;
-border-radius: 3px;
-font-family: &quot;Hack Nerd Font Mono&quot;, &quot;Monaco&quot;;
-}
-
-QComboBox QAbstractItemView {
-background: rgb(166, 173, 200);
-border-radius: 6px;
-padding-top: 3px;
-padding-left: 4px;
-}
-
-QComboBox::drop-down {
-subcontrol-origin: padding;
-subcontrol-position: top right;
-width: 15px;
-border-left-width: 1px;
-border-left-color: darkgray;
-border-left-style: solid;
-border-top-right-radius: 3px;
-border-bottom-right-radius: 3px;
-}
-
-QComboBox::down-arrow{ 
-width: 0;
-height: 0;
-border-style: solid;
-border-right: 3px solid rgb(186, 194, 222);
-border-left: 3px solid rgb(186, 194, 222);
-border-top: 5px solid rgb(69, 71, 90);
-border-bottom: 0;
-}
-
-QDoubleSpinBox {
-background: rgb(180, 190, 254);
-border-radius: 3px;
-font-family: &quot;Hack Nerd Font Mono&quot;, &quot;Monaco&quot;;
-}
-
-QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
-border: none;
-border-left-width: 1px;
-border-left-color: darkgray;
-border-left-style: solid;
-}
-
-QDoubleSpinBox::up-arrow, QDoubleSpinBox::down-arrow {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-right: 3px solid rgb(186, 194, 222);
-  border-left: 3px solid rgb(186, 194, 222);
-  border-bottom: 5px solid rgb(69, 71, 90);
-  border-top: 0;
-}
-
-QDoubleSpinBox::down-arrow {
-border-top: 5px solid rgb(69, 71, 90);
-border-bottom: 0;
-}
-
-QPushButton {
-background: rgb(243, 139, 168);
-border-width: 2px;
-border-radius: 10px;
-border-color: rgb(69, 71, 90);
-text-align: center;
-text-decoration: none;
-font-family: &quot;Hack Nerd Font Mono&quot;, &quot;Monaco&quot;;
-}
-
-QPushButton:hover {
-background-color: rgb(235, 160, 172);
-border-style: outset;
-}
-
-QPushButton::pressed {
-border-style: inset;
-}
-
-QPushButton::checked {
-  background-color: rgb(166, 227, 161); /* Green */
-}
-
-QPushButton::checked:hover {
-  background-color: rgb(166, 209, 137); /* Teal */
-}
-
-#PSButton::checked {
-border-style: inset;
-}
-
-#PSButton::checked:hover {
-border-style: inset;
-}
-
-#BatteryButton, #IGButton{
-border: none;
-border-radius: 10px;
-}
-
-#Close {
-background: transparent;
-}
-
-#Minimise {
-background: transparent;
-}
-
-#Theme {
-background: rgb(239, 241, 245);
-}
-
-#PSButton {
-border-radius: 64%;
-}</string>
+   <string notr="true"/>
   </property>
   <property name="dockNestingEnabled">
    <bool>false</bool>
@@ -195,7 +64,7 @@ border-radius: 64%;
      <rect>
       <x>9</x>
       <y>40</y>
-      <width>371</width>
+      <width>331</width>
       <height>171</height>
      </rect>
     </property>
@@ -270,10 +139,10 @@ border-radius: 64%;
     <widget class="QPushButton" name="PSButton">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>30</y>
-       <width>130</width>
-       <height>130</height>
+       <x>210</x>
+       <y>20</y>
+       <width>100</width>
+       <height>100</height>
       </rect>
      </property>
      <property name="focusPolicy">
@@ -283,13 +152,13 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/power_button.png</normaloff>icons/power_button.png</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/power_button.png</normaloff>:/icons/icons/power_button.png</iconset>
      </property>
      <property name="iconSize">
       <size>
-       <width>200</width>
-       <height>200</height>
+       <width>80</width>
+       <height>80</height>
       </size>
      </property>
      <property name="checkable">
@@ -366,7 +235,7 @@ border-radius: 64%;
        <number>1</number>
       </property>
       <property name="maximum">
-       <double>40.000000000000000</double>
+       <double>24.000000000000000</double>
       </property>
       <property name="singleStep">
        <double>0.500000000000000</double>
@@ -423,13 +292,29 @@ border-radius: 64%;
       </property>
      </widget>
     </widget>
+    <widget class="QSpinBox" name="PSToggleDelay">
+     <property name="geometry">
+      <rect>
+       <x>219</x>
+       <y>136</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Power Supply toggle delay (in ms)</string>
+     </property>
+     <property name="maximum">
+      <number>3600000</number>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="RelayFrame">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>350</x>
       <y>40</y>
-      <width>201</width>
+      <width>241</width>
       <height>171</height>
      </rect>
     </property>
@@ -454,9 +339,9 @@ border-radius: 64%;
     <widget class="QGroupBox" name="IGRelay">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>120</y>
-       <width>171</width>
+       <width>221</width>
        <height>41</height>
       </rect>
      </property>
@@ -493,7 +378,7 @@ border-radius: 64%;
        <rect>
         <x>100</x>
         <y>16</y>
-        <width>60</width>
+        <width>41</width>
         <height>21</height>
        </rect>
       </property>
@@ -501,9 +386,9 @@ border-radius: 64%;
        <string/>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>icons/offswitch.png</normaloff>
-        <normalon>icons/onswitch.png</normalon>icons/offswitch.png</iconset>
+       <iconset resource="resources.qrc">
+        <normaloff>:/icons/icons/offswitch.png</normaloff>
+        <normalon>:/icons/icons/onswitch.png</normalon>:/icons/icons/offswitch.png</iconset>
       </property>
       <property name="iconSize">
        <size>
@@ -515,13 +400,26 @@ border-radius: 64%;
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QSpinBox" name="IGToggleDelay">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>15</y>
+        <width>70</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Ignition toggle delay (in ms)</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="BatteryRelay">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>70</y>
-       <width>171</width>
+       <width>221</width>
        <height>41</height>
       </rect>
      </property>
@@ -564,17 +462,20 @@ border-radius: 64%;
        <rect>
         <x>100</x>
         <y>16</y>
-        <width>60</width>
+        <width>41</width>
         <height>21</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string/>
       </property>
       <property name="text">
        <string/>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>icons/offswitch.png</normaloff>
-        <normalon>icons/onswitch.png</normalon>icons/offswitch.png</iconset>
+       <iconset resource="resources.qrc">
+        <normaloff>:/icons/icons/offswitch.png</normaloff>
+        <normalon>:/icons/icons/onswitch.png</normalon>:/icons/icons/offswitch.png</iconset>
       </property>
       <property name="iconSize">
        <size>
@@ -589,13 +490,26 @@ border-radius: 64%;
        <bool>false</bool>
       </property>
      </widget>
+     <widget class="QSpinBox" name="BatteryToggleDelay">
+      <property name="geometry">
+       <rect>
+        <x>151</x>
+        <y>16</y>
+        <width>70</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Battery toggle delay (in ms)</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="RelayComPort">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>20</y>
-       <width>171</width>
+       <width>211</width>
        <height>41</height>
       </rect>
      </property>
@@ -622,7 +536,7 @@ border-radius: 64%;
        <rect>
         <x>9</x>
         <y>17</y>
-        <width>151</width>
+        <width>201</width>
         <height>20</height>
        </rect>
       </property>
@@ -658,7 +572,7 @@ border-radius: 64%;
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>601</width>
+      <width>591</width>
       <height>41</height>
      </rect>
     </property>
@@ -687,7 +601,7 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>icons/Dev.png</pixmap>
+      <pixmap resource="resources.qrc">:/icons/icons/Dev.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>true</bool>
@@ -743,7 +657,7 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>icons/electric.png</pixmap>
+      <pixmap resource="resources.qrc">:/icons/icons/electric.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>true</bool>
@@ -752,7 +666,7 @@ border-radius: 64%;
     <widget class="QPushButton" name="Close">
      <property name="geometry">
       <rect>
-       <x>570</x>
+       <x>560</x>
        <y>10</y>
        <width>23</width>
        <height>23</height>
@@ -762,8 +676,8 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/close.svg</normaloff>icons/close.svg</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/close.svg</normaloff>:/icons/icons/close.svg</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -775,7 +689,7 @@ border-radius: 64%;
     <widget class="QPushButton" name="Theme">
      <property name="geometry">
       <rect>
-       <x>510</x>
+       <x>500</x>
        <y>10</y>
        <width>23</width>
        <height>23</height>
@@ -785,9 +699,9 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/light_mode.png</normaloff>
-       <normalon>icons/dark_mode.png</normalon>icons/light_mode.png</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/light_mode.png</normaloff>
+       <normalon>:/icons/icons/dark_mode.png</normalon>:/icons/icons/light_mode.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -805,7 +719,7 @@ border-radius: 64%;
     <widget class="QPushButton" name="Minimise">
      <property name="geometry">
       <rect>
-       <x>540</x>
+       <x>530</x>
        <y>10</y>
        <width>23</width>
        <height>23</height>
@@ -815,8 +729,8 @@ border-radius: 64%;
       <string/>
      </property>
      <property name="icon">
-      <iconset>
-       <normaloff>icons/minimise.png</normaloff>icons/minimise.png</iconset>
+      <iconset resource="resources.qrc">
+       <normaloff>:/icons/icons/minimise.png</normaloff>:/icons/icons/minimise.png</iconset>
      </property>
      <property name="iconSize">
       <size>
@@ -854,6 +768,8 @@ border-radius: 64%;
    <header>customcombobox</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
