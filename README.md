@@ -29,6 +29,6 @@ pyinstaller --clear ps_gui.spec
 
 ## Help
 
-Harish Kathalingam (uif51939)
+Harish Kathalingam
 
 Mail: <kathalingam.harish@continental-corporation.com>

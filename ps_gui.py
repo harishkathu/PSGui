@@ -1,7 +1,7 @@
 '''
 ps_gui: Control PS2000 and Serial Relay board
 
-Author: Harish Kathalingam (uif51939)
+Author: Harish Kathalingam
 '''
 import ctypes
 import os
@@ -20,7 +20,8 @@ from layout import Ui_MainWindow
 from ps2000 import PS2000
 
 
-SETTING = QSettings("PSGui", "v1.0")
+VERSION = "v1.0"
+SETTING = QSettings("PSGui", VERSION)
 PROG_DIR = os.path.dirname(os.path.realpath(__file__)) #Canonical path to program's directory
 RELAY_BAUD_RATE = 9600
 PS_REGEX = r"^PS 2000"
@@ -81,6 +82,7 @@ class UI(QMainWindow):
             self.setStyleSheet(QTextStream(stylesheet).readAll())
             stylesheet.close()
 
+        self.ui.Title.setToolTip(f"Version: {VERSION}")
         self.ui.TitleFrame.mouseMoveEvent = self.custMouseMoveEvent
         self._attach_signals()
         self._set_com_ports()

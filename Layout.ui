@@ -412,6 +412,9 @@
       <property name="toolTip">
        <string>Ignition toggle delay (in ms)</string>
       </property>
+      <property name="maximum">
+       <number>3600000</number>
+      </property>
      </widget>
     </widget>
     <widget class="QGroupBox" name="BatteryRelay">
@@ -501,6 +504,9 @@
       </property>
       <property name="toolTip">
        <string>Battery toggle delay (in ms)</string>
+      </property>
+      <property name="maximum">
+       <number>3600000</number>
       </property>
      </widget>
     </widget>
@@ -592,7 +598,7 @@
       </rect>
      </property>
      <property name="toolTip">
-      <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Harish Kathalingam (uif51939)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Harish Kathalingam&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="toolTipDuration">
       <number>-4</number>

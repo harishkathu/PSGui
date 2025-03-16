@@ -1,6 +1,8 @@
 import serial
 from PyQt5.QtWidgets import QComboBox
 
+DEFAULT_TOOL_TIP = "Relay Channel No."
+
 class customComboBox(QComboBox):
     selected :list = list()
     relays :list = [f"Relay {_}" for _ in range(1,9)]
@@ -8,7 +10,7 @@ class customComboBox(QComboBox):
     def __init__(self, parent=None):
         self.prevText :str|None = None
         super().__init__(parent)
-        super().setToolTip("Relay No")
+        super().setToolTip(DEFAULT_TOOL_TIP)
 
     def dd_changed(self):
         '''Callback when drop down value is changed'''
@@ -25,5 +27,5 @@ class customComboBox(QComboBox):
             [x for x in customComboBox.relays if x not in customComboBox.selected]
         )
         super().setCurrentText(self.prevText if self.prevText else '')
-        super().setToolTip(self.prevText if self.prevText else "Relay No")
+        super().setToolTip(self.prevText if self.prevText else DEFAULT_TOOL_TIP)
         super().showPopup()
