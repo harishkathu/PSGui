@@ -31,7 +31,7 @@ RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
 
 
 class Settings(str, Enum):
-    '''Enums for settig paths'''
+    '''Enums for setting paths'''
     THEME = "theme/styeshet"
 
     POWERSUPPLYCOM = "power_supply/com_port"
@@ -181,7 +181,7 @@ class UI(QMainWindow):
         for i, com in enumerate(com_list):
             self.ui.RelayCom.setItemData(i, com, Qt.ToolTipRole)
 
-        # Retrive from saved settings if exists
+        # Retrieve from saved settings if exists
         if SETTING.value(Settings.POWERSUPPLYCOM) in com_list:
             self.ui.PSCom.setCurrentText(SETTING.value(Settings.POWERSUPPLYCOM))
 
@@ -195,7 +195,7 @@ class UI(QMainWindow):
         for i, com in enumerate(com_list):
             self.ui.RelayCom.setItemData(i, com, Qt.ToolTipRole)
 
-        # Retrive from saved settings if exists
+        # Retrieve from saved settings if exists
         if SETTING.value(Settings.REALYCOM) in com_list:
             self.ui.RelayCom.setCurrentText(SETTING.value(Settings.REALYCOM))
 
