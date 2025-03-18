@@ -24,9 +24,11 @@ VERSION = "v1.0"
 SETTING = QSettings("PSGui", VERSION)
 PROG_DIR = os.path.dirname(os.path.realpath(__file__)) #Canonical path to program's directory
 RELAY_BAUD_RATE = 9600
+PS_TOGGLE_MIN_DELAY = 1000
+RELAY_MIN_DELAY = 100
 PS_REGEX = r"^PS 2000"
 RELAY_REGEX = fr"^(?!({PS_REGEX}))"
-PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
+PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(PS_REGEX)))
 RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
 
 
@@ -87,7 +89,6 @@ class UI(QMainWindow):
         self._attach_signals()
         self._set_com_ports()
         self._set_realys()
-        self._set_voltages()
         self.show()
 
 
@@ -134,7 +135,7 @@ class UI(QMainWindow):
         self.ui.PSButton.blockSignals(False)
 
         self.ps_device.set_remote(True)
-        voltage = int(self.ui.OnVoltage.text() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.text())
+        voltage = self.ui.OnVoltage.value() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.value()
         # When turnign on if On/OffVoltage is 0 we let hardware decide
         if self.ui.PSButton.isChecked() and voltage != 0:
             self.ps_device.set_voltage(voltage)
@@ -208,14 +209,6 @@ class UI(QMainWindow):
         self.ui.IGCom.setCurrentText(SETTING.value(Settings.IGRELAY, ""))
 
 
-    def _set_voltages(self):
-        '''Set Power supply On and Off voltages'''
-        if not self.ui.PSCom.currentText():
-            return
-        self.ui.OnVoltage(SETTING.value(Settings.ONVOLTAGE).toInt(), 0)
-        self.ui.OffVoltage(SETTING.value(Settings.OFFVOLTAGE).toInt(), 0)
-
-
     def _attach_signals(self):
         '''Configure all buttons''' 
         self.msg_timer.timeout.connect(self._timer_to)
@@ -228,10 +221,20 @@ class UI(QMainWindow):
         self.ui.RelayCom.currentIndexChanged.connect(self.dd_rcom_changed)
         self.ui.PSCom.currentIndexChanged.connect(self.dd_pscom_changed)
         self.ui.PSButton.clicked.connect(self.ps_toggled)
+        self.ui.PSToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.PSToggleDelay.value(), PS_TOGGLE_MIN_DELAY, self.ui.PSToggleDelay))
         self.ui.BatteryCom.currentIndexChanged.connect(self.ui.BatteryCom.dd_changed)
         self.ui.BatteryButton.clicked.connect(self.battery_toggled)
+        self.ui.BatteryToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.BatteryToggleDelay.value(), RELAY_MIN_DELAY, self.ui.BatteryToggleDelay))
         self.ui.IGCom.currentIndexChanged.connect(self.ui.IGCom.dd_changed)
         self.ui.IGButton.clicked.connect(self.ig_toggled)
+        self.ui.IGToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.IGToggleDelay.value(), RELAY_MIN_DELAY, self.ui.IGToggleDelay))
+
+
+    def _toggle_delay_changed(self, value, min_val, toggle_delay_obj):
+        if value == 0:
+            return
+        if value < min_val:
+            toggle_delay_obj.setValue(min_val)
 
 
     def dd_pscom_changed(self):
@@ -249,7 +252,7 @@ class UI(QMainWindow):
         if self.ui.RelayCom.currentText():
             device = [(com, desc) for com, desc, _ in RELAY_COM_LIST if desc == self.ui.RelayCom.currentText()]
             self.relay_device = serial.Serial(device[0][0]) # Com port (com)
-            SETTING.setValue(Settings.POWERSUPPLYCOM, device[0][1]) # description (desc)
+            SETTING.setValue(Settings.REALYCOM, device[0][1]) # description (desc)
 
 
     def ps_toggled(self):
@@ -260,21 +263,25 @@ class UI(QMainWindow):
             self.msg_timer.start()
             return
 
+        if self.ps_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] Power supply auto-toggle stopped**")
+            self.msg_timer.start()
+            self.ps_toggle_timer.stop()
+            self.ui.PSButton.setChecked(False)
+
         self.ps_device.set_remote(True)
-        voltage = int(self.ui.OnVoltage.text() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.text())
+        voltage = self.ui.OnVoltage.value() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.value()
         # When turnign on if On/OffVoltage is 0 we let hardware decide
         if self.ui.PSButton.isChecked() and voltage != 0:
             self.ps_device.set_voltage(voltage)
         self.ps_device.set_output_on(on = self.ui.PSButton.isChecked())
         self.ps_device.set_remote(False)
 
-        if (not self.ps_toggle_timer.isActive()) and (self.ui.PSToggleDelay != 0):
-            self.ps_toggle_timer.setInterval(self.ui.PSToggleDelay)
+        if (not self.ps_toggle_timer.isActive()) \
+            and (self.ui.PSToggleDelay.value() != 0) \
+            and self.ui.PSButton.isChecked():
+            self.ps_toggle_timer.setInterval(self.ui.PSToggleDelay.value())
             self.ps_toggle_timer.start()
-
-        if self.ps_toggle_timer.isActive():
-            self.ui.Message.setText("**[INFO] Power supply auto-toggle stopped**")
-            self.ps_toggle_timer.stop()
 
 
     def battery_toggled(self):
@@ -289,18 +296,22 @@ class UI(QMainWindow):
             self.ui.Message.setText("**[INFO] Invalid Relay channel**")
             return
 
+        if self.battery_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] Battery auto-toggle stopped**")
+            self.msg_timer.start()
+            self.battery_toggle_timer.stop()
+            self.ui.BatteryButton.setChecked(False)
+
         relay = self.ui.BatteryCom.currentText()
         SETTING.setValue(Settings.BATTERYRELAY, self.ui.BatteryCom.currentText())
         cmd = f"RL{relay[-1]}{int(self.ui.BatteryButton.isChecked())}" if relay else ""
         self.relay_device.write(self._gen_payload(cmd))
 
-        if (not self.battery_toggle_timer.isActive()) and (self.ui.BatteryToggleDelay != 0):
-            self.battery_toggle_timer.setInterval(self.ui.BatteryToggleDelay)
+        if (not self.battery_toggle_timer.isActive()) \
+            and (self.ui.BatteryToggleDelay.value() != 0) \
+            and self.ui.BatteryButton.isChecked():
+            self.battery_toggle_timer.setInterval(self.ui.BatteryToggleDelay.value())
             self.battery_toggle_timer.start()
-
-        if self.battery_toggle_timer.isActive():
-            self.ui.Message.setText("**[INFO] Battery auto-toggle stopped**")
-            self.battery_toggle_timer.stop()
 
 
     def ig_toggled(self):
@@ -315,18 +326,22 @@ class UI(QMainWindow):
             self.ui.Message.setText("**[INFO] Invalid Relay channel**")
             return
 
+        if self.ig_toggle_timer.isActive():
+            self.ui.Message.setText("**[INFO] IG auto-toggle stopped**")
+            self.msg_timer.start()
+            self.ig_toggle_timer.stop()
+            self.ui.IGButton.setChecked(False)
+
         relay = self.ui.IGCom.currentText()
         SETTING.setValue(Settings.IGRELAY, self.ui.IGCom.currentText())
         cmd = f"RL{relay[-1]}{int(self.ui.IGButton.isChecked())}" if relay else ""
         self.relay_device.write(self._gen_payload(cmd))
 
-        if (not self.ig_toggle_timer.isActive()) and (self.ui.IGToggleDelay != 0):
-            self.ig_toggle_timer.setInterval(self.ui.IGToggleDelay)
+        if (not self.ig_toggle_timer.isActive()) \
+            and (self.ui.IGToggleDelay.value() != 0) \
+            and self.ui.IGButton.isChecked():
+            self.ig_toggle_timer.setInterval(self.ui.IGToggleDelay.value())
             self.ig_toggle_timer.start()
-
-        if self.ig_toggle_timer.isActive():
-            self.ui.Message.setText("**[INFO] IG auto-toggle stopped**")
-            self.ig_toggle_timer.stop()
 
 
     def theme_clicked(self):
