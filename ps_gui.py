@@ -23,7 +23,6 @@ from ps2000 import PS2000
 VERSION = "v1.0"
 SETTING = QSettings("PSGui", VERSION)
 PROG_DIR = os.path.dirname(os.path.realpath(__file__)) #Canonical path to program's directory
-RELAY_BAUD_RATE = 9600
 RELAY_COM_BAUD_RATE = 9600
 PS_TOGGLE_MIN_DELAY = 1000
 RELAY_MIN_DELAY = 100
@@ -92,6 +91,7 @@ class UI(QMainWindow):
         self._attach_signals()
         self._set_com_ports()
         self._set_realys()
+        self._set_voltage()
         self.show()
 
 
@@ -208,8 +208,17 @@ class UI(QMainWindow):
         '''Set Battery and IG relay'''
         if not self.ui.RelayCom.currentText():
             return
+        self.ui.BatteryCom.addItems(RELAY_ITEMS)
+        self.ui.IGCom.addItems(RELAY_ITEMS)
         self.ui.BatteryCom.setCurrentText(SETTING.value(Settings.BATTERYRELAY, ""))
         self.ui.IGCom.setCurrentText(SETTING.value(Settings.IGRELAY, ""))
+
+
+    def _set_voltage(self):
+        if not self.ui.PSCom.currentText():
+            return
+        self.ui.OnVoltage.currentText(SETTING.value(Settings.ONVOLTAGE, 0))
+        self.ui.OffVoltage.currentText(SETTING.value(Settings.OFFVOLTAGE, 0))
 
 
     def _attach_signals(self):
@@ -272,6 +281,8 @@ class UI(QMainWindow):
 
         self.ps_device.set_remote(True)
         voltage = self.ui.OnVoltage.value() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.value()
+        SETTING.setValue(Settings.ONVOLTAGE, self.ui.OnVoltage.value())
+        SETTING.setValue(Settings.OFFVOLTAGE, self.ui.OffVoltage.value())
         # When turnign on if On/OffVoltage is 0 we let hardware decide
         if self.ui.PSButton.isChecked() and voltage != 0:
             self.ps_device.set_voltage(voltage)
