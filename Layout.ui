@@ -351,7 +351,7 @@
      <property name="flat">
       <bool>true</bool>
      </property>
-     <widget class="customComboBox" name="IGCom">
+     <widget class="QComboBox" name="IGCom">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -432,7 +432,7 @@
      <property name="flat">
       <bool>true</bool>
      </property>
-     <widget class="customComboBox" name="BatteryCom">
+     <widget class="QComboBox" name="BatteryCom">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -767,13 +767,6 @@
    </widget>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>customComboBox</class>
-   <extends>QComboBox</extends>
-   <header>customcombobox</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

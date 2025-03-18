@@ -24,8 +24,11 @@ VERSION = "v1.0"
 SETTING = QSettings("PSGui", VERSION)
 PROG_DIR = os.path.dirname(os.path.realpath(__file__)) #Canonical path to program's directory
 RELAY_BAUD_RATE = 9600
+RELAY_COM_BAUD_RATE = 9600
 PS_TOGGLE_MIN_DELAY = 1000
 RELAY_MIN_DELAY = 100
+MAX_RELAYS = 8
+RELAY_ITEMS = [f"Relay {_}" for _ in range(1,MAX_RELAYS+1)]
 PS_REGEX = r"^PS 2000"
 RELAY_REGEX = fr"^(?!({PS_REGEX}))"
 PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(PS_REGEX)))
@@ -222,10 +225,8 @@ class UI(QMainWindow):
         self.ui.PSCom.currentIndexChanged.connect(self.dd_pscom_changed)
         self.ui.PSButton.clicked.connect(self.ps_toggled)
         self.ui.PSToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.PSToggleDelay.value(), PS_TOGGLE_MIN_DELAY, self.ui.PSToggleDelay))
-        self.ui.BatteryCom.currentIndexChanged.connect(self.ui.BatteryCom.dd_changed)
         self.ui.BatteryButton.clicked.connect(self.battery_toggled)
         self.ui.BatteryToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.BatteryToggleDelay.value(), RELAY_MIN_DELAY, self.ui.BatteryToggleDelay))
-        self.ui.IGCom.currentIndexChanged.connect(self.ui.IGCom.dd_changed)
         self.ui.IGButton.clicked.connect(self.ig_toggled)
         self.ui.IGToggleDelay.valueChanged.connect(lambda: self._toggle_delay_changed(self.ui.IGToggleDelay.value(), RELAY_MIN_DELAY, self.ui.IGToggleDelay))
 
