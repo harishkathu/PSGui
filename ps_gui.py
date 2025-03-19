@@ -215,10 +215,10 @@ class UI(QMainWindow):
 
 
     def _set_voltage(self):
-        if not self.ui.PSCom.currentText():
+        if (not self.ui.PSCom.currentText()) and (self.ps_device is None):
             return
-        self.ui.OnVoltage.currentText(SETTING.value(Settings.ONVOLTAGE, 0))
-        self.ui.OffVoltage.currentText(SETTING.value(Settings.OFFVOLTAGE, 0))
+        self.ui.OnVoltage.setValue(self.ps_device.get_voltage_setpoint())
+        self.ui.OffVoltage.setValue(0.0)
 
 
     def _attach_signals(self):
@@ -281,8 +281,6 @@ class UI(QMainWindow):
 
         self.ps_device.set_remote(True)
         voltage = self.ui.OnVoltage.value() if self.ui.PSButton.isChecked() else self.ui.OffVoltage.value()
-        SETTING.setValue(Settings.ONVOLTAGE, self.ui.OnVoltage.value())
-        SETTING.setValue(Settings.OFFVOLTAGE, self.ui.OffVoltage.value())
         # When turnign on if On/OffVoltage is 0 we let hardware decide
         if self.ui.PSButton.isChecked() and voltage != 0:
             self.ps_device.set_voltage(voltage)
