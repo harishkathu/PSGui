@@ -28,10 +28,9 @@ PS_TOGGLE_MIN_DELAY = 1000
 RELAY_MIN_DELAY = 100
 MAX_RELAYS = 8
 RELAY_ITEMS = [f"Relay {_}" for _ in range(1,MAX_RELAYS+1)]
-PS_REGEX = r"^PS 2000"
-RELAY_REGEX = fr"^(?!({PS_REGEX}))"
+PS_REGEX = r"^PS 2000.*"
 PS_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(PS_REGEX)))
-RELAY_COM_LIST = sorted(tuple(serial.tools.list_ports.grep(RELAY_REGEX)))
+RELAY_COM_LIST = sorted(tuple(_ for _ in serial.tools.list_ports.comports() if _ not in PS_COM_LIST))
 
 
 class Settings(str, Enum):
